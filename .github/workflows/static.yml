@@ -56,7 +56,7 @@ jobs:
 
       - name: Build Website
         working-directory: ./umage-grayscale
-        run: npx expo start --web
+        run: npx expo export -p web
 
       # --- 3. DEPLOYMENT ---
       - name: Upload artifact
