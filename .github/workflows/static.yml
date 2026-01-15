@@ -37,7 +37,7 @@ jobs:
 
       - name: Run Python Build Script
         working-directory: ./umage-grayscale
-        run: python public/grayscale.py
+        run: python public/py/grayscale.py
 
       # --- 2. EXPO/NODE SETUP (Build the website) ---
       - name: Setup Node
