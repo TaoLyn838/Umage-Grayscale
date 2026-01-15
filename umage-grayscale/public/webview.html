@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Processor</title>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+</head>
+
+<body>
+    <div id="status">Initializing Pyodide...</div>
+    <script>
+        let pyodide = null;
+        let isReady = false;
+
+        async function initializePyodide() {
+            try {
+                pyodide = await loadPyodide({
+                    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
+                });
+
+                await pyodide.loadPackage(['opencv-python']);
+                await loadPythonCode();
+                document.getElementById('status').textContent = 'Pyodide ready!';
+                isReady = true;
+
+                const readyMsg = JSON.stringify({ type: 'ready', message: 'Pyodide initialized successfully' });
+                if (window.ReactNativeWebView) {
+                    window.ReactNativeWebView.postMessage(readyMsg);
+                } else {
+                    window.parent.postMessage(readyMsg, '*');
+                }
+
+                console.log('Pyodide initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize Pyodide:', error);
+                sendError('Failed to initialize Pyodide: ' + error.message);
+            }
+        }
+
+        async function loadPythonCode() {
+            const candidateUrls = [
+                '../py/grayscale.py',
+                '/py/grayscale.py',
+                'py/grayscale.py',
+            ];
+            let code = null;
+            let sourceUrl = null;
+            for (const url of candidateUrls) {
+                const response = await fetch(url);
+                if (response.ok) {
+                    const text = await response.text();
+                    if (!text.trim().startsWith('<')) {
+                        code = text;
+                        sourceUrl = url;
+                        break;
+                    }
+                }
+            }
+            if (!code) {
+                throw new Error('Failed to load grayscale.py from expected locations.');
+            }
+            console.debug('[Pyodide] Loaded grayscale.py from', sourceUrl);
+            pyodide.runPython(code);
+        }
+
+        // Handle messages from React Native
+        window.addEventListener('message', async (event) => {
+            if (!isReady) {
+                sendError('Pyodide not ready yet. Please wait...');
+                return;
+            }
+
+            try {
+                const message = JSON.parse(event.data);
+
+                if (message.type === 'processImage') {
+                    const { data: base64Data, filter = 'grayscale', maxDimension = 800 } = message;
+
+                    const progressMsg = JSON.stringify({ type: 'progress', message: 'Processing image...' });
+                    if (window.ReactNativeWebView) {
+                        window.ReactNativeWebView.postMessage(progressMsg);
+                    } else {
+                        window.parent.postMessage(progressMsg, '*');
+                    }
+
+                    pyodide.globals.set("input_base64", base64Data);
+                    pyodide.globals.set("max_dimension", maxDimension);
+
+                    pyodide.runPython(`
+                        try:
+                            __result = apply_grayscale_filter(input_base64, max_dimension)
+                        except Exception as e:
+                            __result = f"ERROR: {str(e)}"
+                    `);
+
+                    let resultValue = '';
+                    const resultProxy = pyodide.globals.get('__result');
+                    if (resultProxy && typeof resultProxy.toJs === 'function') {
+                        const jsValue = resultProxy.toJs();
+                        if (typeof jsValue === 'string') {
+                            resultValue = jsValue.trim();
+                        }
+                    }
+                    if (!resultValue && resultProxy && typeof resultProxy.toString === 'function') {
+                        resultValue = resultProxy.toString().trim();
+                    }
+                    if (resultProxy && typeof resultProxy.destroy === 'function') {
+                        resultProxy.destroy();
+                    }
+                    if (pyodide.globals.has('__result')) {
+                        pyodide.globals.delete('__result');
+                    }
+
+                    if (typeof resultValue === 'string' && resultValue.startsWith('ERROR:')) {
+                        sendError(resultValue.substring(6).trim());
+                        return;
+                    }
+
+                    // Send processed result back to React Native
+                    const resultMsg = JSON.stringify({
+                        type: "result",
+                        data: resultValue
+                    });
+                    if (window.ReactNativeWebView) {
+                        window.ReactNativeWebView.postMessage(resultMsg);
+                    } else {
+                        window.parent.postMessage(resultMsg, '*');
+                    }
+                }
+            } catch (error) {
+                console.error('Error processing message:', error);
+                sendError('Error processing image: ' + error.message);
+            }
+        });
+
+        function sendError(message) {
+            const errorMsg = JSON.stringify({ type: 'error', message: message });
+            if (window.ReactNativeWebView) {
+                window.ReactNativeWebView.postMessage(errorMsg);
+            } else {
+                window.parent.postMessage(errorMsg, '*');
+            }
+        }
+
+        function base64ToUint8Array(base64) {
+            // Remove data URL prefix if present
+            const base64String = base64.includes(',')
+                ? base64.split(',')[1]
+                : base64;
+
+            // Decode base64
+            const binaryString = atob(base64String);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes;
+        }
+
+        // Initialize on load
+        (async () => {
+            await initializePyodide();
+        })();
+    </script>
+</body>
+
+</html>
+
+</html>
