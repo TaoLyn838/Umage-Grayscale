@@ -20,7 +20,7 @@
                     indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
                 });
 
-                await pyodide.loadPackage(['opencv-python']);
+                await pyodide.loadPackage(['pillow']);
                 await loadPythonCode();
                 document.getElementById('status').textContent = 'Pyodide ready!';
                 isReady = true;
