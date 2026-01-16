@@ -25,7 +25,6 @@ const ImageUploadScreen = ({
     const [webStatus, setWebStatus] = useState<string | null>(null);
     const isWeb = Platform.OS === 'web';
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const webviewHtmlUri = Asset.fromModule(require('../../public/webview.html')).uri;
 
     const { pickImage } = useImagePicker({
         webViewRef,
@@ -207,13 +206,13 @@ const ImageUploadScreen = ({
             {isWeb ? (
                 <iframe
                     id="pyodide-frame"
-                    src={webviewHtmlUri}
+                    src="/webview.html"
                     style={{ width: 0, height: 0, border: 0, opacity: 0 }}
                 />
             ) : (
                 <WebView
                     ref={webViewRef}
-                    source={{ uri: webviewHtmlUri }}
+                    source={{ uri: Asset.fromModule(require('../../public/webview.html')).uri }}
                     onMessage={handleWebViewMessage}
                     style={styles.hiddenWebView}
                 />
