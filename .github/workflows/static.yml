@@ -2,7 +2,7 @@ name: Deploy Expo Web to Pages
 
 on:
   push:
-    branches: ["main"]
+    branches: ["try-Pillow"]
   workflow_dispatch:
 
 permissions:
@@ -28,8 +28,8 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-          cache: 'pip' # Caches pip packages for faster builds
+          python-version: "3.10"
+          cache: "pip" # Caches pip packages for faster builds
 
       - name: Install Python Dependencies
         working-directory: ./umage-grayscale
@@ -44,7 +44,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
           cache-dependency-path: umage-grayscale/package-lock.json
 
       - name: Setup Pages
@@ -63,7 +63,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           # We upload the 'dist' folder created by the build step above
-          path: 'umage-grayscale/dist'
+          path: "umage-grayscale/dist"
 
       - name: Deploy to GitHub Pages
         id: deployment
