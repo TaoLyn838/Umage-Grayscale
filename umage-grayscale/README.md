@@ -23,7 +23,7 @@ Design + Readme + Deploy Time spent: around one hour
 
 ## Design
 
-This section describes the technical solution and code design choices for the Browser-Side Image Processor. Here is the Figma link for the UI design of this app: https://www.figma.com/board/utAsgVKRT5XR1ZQ48M4FhP/Umage-Scale?node-id=0-1&t=Z7Af5aRDuI7HgrlS-1
+This section describes the technical solution and code design choices for the Browser-Side Image Processor. Here is the **Figma** link for the UI design of this app: https://www.figma.com/board/utAsgVKRT5XR1ZQ48M4FhP/Umage-Scale?node-id=0-1&t=Z7Af5aRDuI7HgrlS-1
 
 ### Technical solution and code design choices
 
@@ -31,7 +31,21 @@ The main reason I chose this technical solution is that it covers all the techni
 
 ### Handled the JS-Python bridge and UI State Management
 
-The application utilizes a three-layer bridge architecture to connect JavaScript and Python, where React Native components handle user interactions and image selection, a WebView-based HTML bridge manages Pyodide initialization and communication, and a pure Python layer (`grayscale.py`) performs the image processing using Pillow. Bidirectional communication is handled via JSON-serialized messages over the `postMessage` interface, ensuring a non-blocking UI. UI state is managed through a centralized React hook pattern, where a custom `useImagePicker` hook orchestrates the image processing lifecycle—from selection and base64 conversion to state updates and error handling—enabling seamless transitions between upload and comparison views while maintaining a clear separation of concerns.
+The app is built around a simple three-part setup that connects **JavaScript** and **Python**.  
+It uses **React Native** for the UI — such as picking and displaying images — while a **WebView** runs **Pyodide** and handles communication between the two sides.
+
+Image processing is done in Python inside `public/py/grayscale.py`, which uses the **Pillow** library to apply filters and produce results.
+
+Data exchange between React and Pyodide happens through **JSON messages**, keeping the interface responsive and interactions smooth.
+
+UI state is managed with a custom React hook called `useImagePicker`, which takes care of:
+
+- Selecting images
+- Converting them to base64
+- Updating the state
+- Handling errors
+
+This approach keeps logic organized and makes it easy to switch between uploading and comparing images while keeping components clear and independent. You can see more details in the Project Architecture section below.
 
 ## Get started
 
