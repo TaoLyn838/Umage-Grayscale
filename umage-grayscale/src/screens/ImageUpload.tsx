@@ -25,6 +25,7 @@ const ImageUploadScreen = ({
     const [webStatus, setWebStatus] = useState<string | null>(null);
     const isWeb = Platform.OS === 'web';
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const webviewHtmlUri = Asset.fromModule(require('../../public/webview.html')).uri;
 
     const { pickImage } = useImagePicker({
         webViewRef,
@@ -108,6 +109,12 @@ const ImageUploadScreen = ({
 
             if (message.type === 'ready') {
                 webViewReadyRef.current = true;
+                setWebStatus(null);
+                return;
+            }
+
+            if (message.type === 'progress') {
+                setWebStatus(message.message || 'Initializing image engine...');
                 return;
             }
 
@@ -206,13 +213,13 @@ const ImageUploadScreen = ({
             {isWeb ? (
                 <iframe
                     id="pyodide-frame"
-                    src="/webview.html"
+                    src={webviewHtmlUri}
                     style={{ width: 0, height: 0, border: 0, opacity: 0 }}
                 />
             ) : (
                 <WebView
                     ref={webViewRef}
-                    source={{ uri: Asset.fromModule(require('../../public/webview.html')).uri }}
+                    source={{ uri: webviewHtmlUri }}
                     onMessage={handleWebViewMessage}
                     style={styles.hiddenWebView}
                 />
