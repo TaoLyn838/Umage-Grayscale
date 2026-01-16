@@ -21,10 +21,6 @@ Design + Readme + Deploy Time spent: around one hour
 - [x] A side-by-side or "before/after" comparison of the original and processed images.
 - [x] An option to download the final grayscale image.
 
-## OpenCV Removal (Web Performance)
-
-OpenCV has been removed from the Pyodide pipeline and replaced with Pillow for decoding, resizing, and grayscale conversion. The reason is performance: the `opencv-python` package is very large in Pyodide, which significantly increases first-load time on GitHub Pages. Pillow is much smaller and still satisfies the requirement to use Python libraries for the conversion, so startup is faster while keeping the same features.
-
 ## Design
 
 This section describes the technical solution and code design choices for the Browser-Side Image Processor. Here is the Figma link for the UI design of this app: https://www.figma.com/board/utAsgVKRT5XR1ZQ48M4FhP/Umage-Scale?node-id=0-1&t=Z7Af5aRDuI7HgrlS-1
@@ -141,6 +137,10 @@ umage-grayscale/
 5. **Result Return**: Processed image (base64) is sent back via `postMessage`
 6. **UI Update**: React Native state is updated with processed image URL
 7. **Display**: User sees before/after comparison in `ImageComparisonScreen`
+
+## OpenCV Removal (Web Performance)
+
+OpenCV has been removed from the Pyodide pipeline and replaced with Pillow for decoding, resizing, and grayscale conversion. The reason is performance: the `opencv-python` package is very large in Pyodide, which significantly increases first-load time on GitHub Pages. Pillow is much smaller and still satisfies the requirement to use Python libraries for the conversion, so startup is faster while keeping the same features.
 
 ## Get a fresh project
 

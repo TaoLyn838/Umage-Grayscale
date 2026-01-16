@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Alert, Platform, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import { Card } from '../components';
+import { Card, Header } from '../components';
 
 interface ImageComparisonScreenProps {
     imageURL: string;
@@ -46,90 +46,93 @@ const ImageComparisonScreen = ({
 
     return (
         <View style={styles.container}>
-            <Card title="Result" rightAction={renderRightActions()} style={styles.card}>
-                <View
-                    style={styles.imageWrapper}
-                    onLayout={(event) => setContainerWidth(event.nativeEvent.layout.width)}
-                    onStartShouldSetResponder={() => true}
-                    onResponderGrant={(event) => {
-                        if (containerWidth <= 0) {
-                            return;
-                        }
-                        const next = Math.min(
-                            100,
-                            Math.max(0, (event.nativeEvent.locationX / containerWidth) * 100)
-                        );
-                        setSliderPosition(next);
-                        setShowCoachMark(false);
-                    }}
-                    onResponderMove={(event) => {
-                        if (containerWidth <= 0) {
-                            return;
-                        }
-                        const next = Math.min(
-                            100,
-                            Math.max(0, (event.nativeEvent.locationX / containerWidth) * 100)
-                        );
-                        setSliderPosition(next);
-                    }}
-                >
-                    <View style={styles.imageLayer}>
-                        <Image
-                            source={{ uri: imageURL }}
-                            style={styles.image}
-                            contentFit="cover"
-                        />
-                        <View style={styles.badgeLeft}>
-                            <Text style={styles.badgeText}>Grayscale</Text>
-                        </View>
-                    </View>
-
+            <Header />
+            <View style={styles.centeredContent}>
+                <Card title="Result" rightAction={renderRightActions()} style={styles.card}>
                     <View
-                        style={[
-                            styles.imageLayer,
-                            {
-                                width: `${sliderPosition}%`,
-                                overflow: 'hidden',
-                                zIndex: 5
-                            },
-                        ]}
+                        style={styles.imageWrapper}
+                        onLayout={(event) => setContainerWidth(event.nativeEvent.layout.width)}
+                        onStartShouldSetResponder={() => true}
+                        onResponderGrant={(event) => {
+                            if (containerWidth <= 0) {
+                                return;
+                            }
+                            const next = Math.min(
+                                100,
+                                Math.max(0, (event.nativeEvent.locationX / containerWidth) * 100)
+                            );
+                            setSliderPosition(next);
+                            setShowCoachMark(false);
+                        }}
+                        onResponderMove={(event) => {
+                            if (containerWidth <= 0) {
+                                return;
+                            }
+                            const next = Math.min(
+                                100,
+                                Math.max(0, (event.nativeEvent.locationX / containerWidth) * 100)
+                            );
+                            setSliderPosition(next);
+                        }}
                     >
-                        <Image
-                            source={{ uri: originalImageURL }}
-                            style={[
-                                styles.image,
-                                { width: containerWidth }
-                            ]}
-                            contentFit="cover"
-                        />
-                        <View style={styles.badgeRight}>
-                            <Text style={styles.badgeText}>Original</Text>
-                        </View>
-                    </View>
-
-                    <View
-                        style={[
-                            styles.sliderLine,
-                            { left: `${sliderPosition}%` },
-                        ]}
-                    >
-                        <View style={styles.sliderHandle}>
-                            <Ionicons name="resize-outline" size={20} color="#3f1f1f" />
-                        </View>
-                    </View>
-
-                    {showCoachMark && (
-                        <View style={styles.coachMark}>
-                            <View style={styles.coachBubble}>
-                                <Text style={styles.coachText}>
-                                    Slide to compare before & after
-                                </Text>
-                                <View style={styles.coachArrow} />
+                        <View style={styles.imageLayer}>
+                            <Image
+                                source={{ uri: imageURL }}
+                                style={styles.image}
+                                contentFit="cover"
+                            />
+                            <View style={styles.badgeLeft}>
+                                <Text style={styles.badgeText}>Grayscale</Text>
                             </View>
                         </View>
-                    )}
-                </View>
-            </Card>
+
+                        <View
+                            style={[
+                                styles.imageLayer,
+                                {
+                                    width: `${sliderPosition}%`,
+                                    overflow: 'hidden',
+                                    zIndex: 5
+                                },
+                            ]}
+                        >
+                            <Image
+                                source={{ uri: originalImageURL }}
+                                style={[
+                                    styles.image,
+                                    { width: containerWidth }
+                                ]}
+                                contentFit="cover"
+                            />
+                            <View style={styles.badgeRight}>
+                                <Text style={styles.badgeText}>Original</Text>
+                            </View>
+                        </View>
+
+                        <View
+                            style={[
+                                styles.sliderLine,
+                                { left: `${sliderPosition}%` },
+                            ]}
+                        >
+                            <View style={styles.sliderHandle}>
+                                <Ionicons name="resize-outline" size={20} color="#3f1f1f" />
+                            </View>
+                        </View>
+
+                        {showCoachMark && (
+                            <View style={styles.coachMark}>
+                                <View style={styles.coachBubble}>
+                                    <Text style={styles.coachText}>
+                                        Slide to compare before & after
+                                    </Text>
+                                    <View style={styles.coachArrow} />
+                                </View>
+                            </View>
+                        )}
+                    </View>
+                </Card>
+            </View>
         </View>
     );
 };
@@ -137,8 +140,14 @@ const ImageComparisonScreen = ({
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
+        minHeight: '100%',
+        flexDirection: 'column',
+    },
+    centeredContent: {
+        flex: 1,
         justifyContent: 'center',
+        paddingHorizontal: 20,
+        paddingBottom: 40,
     },
     card: {
         flex: 1,
