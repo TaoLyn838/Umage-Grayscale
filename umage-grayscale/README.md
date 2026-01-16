@@ -21,6 +21,10 @@ Design + Readme + Deploy Time spent: around one hour
 - [x] A side-by-side or "before/after" comparison of the original and processed images.
 - [x] An option to download the final grayscale image.
 
+## OpenCV Removal (Web Performance)
+
+OpenCV has been removed from the Pyodide pipeline and replaced with Pillow for decoding, resizing, and grayscale conversion. The reason is performance: the `opencv-python` package is very large in Pyodide, which significantly increases first-load time on GitHub Pages. Pillow is much smaller and still satisfies the requirement to use Python libraries for the conversion, so startup is faster while keeping the same features.
+
 ## Design
 
 This section describes the technical solution and code design choices for the Browser-Side Image Processor. Here is the Figma link for the UI design of this app: https://www.figma.com/board/utAsgVKRT5XR1ZQ48M4FhP/Umage-Scale?node-id=0-1&t=Z7Af5aRDuI7HgrlS-1
@@ -31,7 +35,7 @@ The main reason I chose this technical solution is that it covers all the techni
 
 ### Handled the JS-Python bridge and UI State Management
 
-The application utilizes a three-layer bridge architecture to connect JavaScript and Python, where React Native components handle user interactions and image selection, a WebView-based HTML bridge manages Pyodide initialization and communication, and a pure Python layer (`grayscale.py`) performs the image processing using OpenCV and NumPy. Bidirectional communication is handled via JSON-serialized messages over the `postMessage` interface, ensuring a non-blocking UI. UI state is managed through a centralized React hook pattern, where a custom `useImagePicker` hook orchestrates the image processing lifecycle—from selection and base64 conversion to state updates and error handling—enabling seamless transitions between upload and comparison views while maintaining a clear separation of concerns.
+The application utilizes a three-layer bridge architecture to connect JavaScript and Python, where React Native components handle user interactions and image selection, a WebView-based HTML bridge manages Pyodide initialization and communication, and a pure Python layer (`grayscale.py`) performs the image processing using Pillow. Bidirectional communication is handled via JSON-serialized messages over the `postMessage` interface, ensuring a non-blocking UI. UI state is managed through a centralized React hook pattern, where a custom `useImagePicker` hook orchestrates the image processing lifecycle—from selection and base64 conversion to state updates and error handling—enabling seamless transitions between upload and comparison views while maintaining a clear separation of concerns.
 
 ## Get started
 
@@ -104,7 +108,7 @@ umage-grayscale/
 │       └── index.ts
 ├── public/
 │   ├── py/                # Python scripts for Pyodide
-│   │   └── grayscale.py   # Image processing logic (OpenCV/NumPy)
+│   │   └── grayscale.py   # Image processing logic (Pillow)
 │   └── webview.html       # WebView HTML for Pyodide bridge
 ├── assets/                # Static assets (images, icons)
 └── scripts/               # Build and utility scripts
@@ -124,8 +128,7 @@ umage-grayscale/
 - **Runtime**: Pyodide (Python in the browser)
 - **Location**: `public/py/grayscale.py`
 - **Libraries**:
-  - OpenCV (cv2) for image decoding/encoding
-  - NumPy for array operations
+  - Pillow for image decoding/encoding, resize, and grayscale conversion
   - Base64 for data encoding/decoding
 - **Bridge**: WebView (`public/webview.html`) handles communication between React Native and Pyodide
 
