@@ -39,11 +39,26 @@
             }
         }
 
+        function getBasePath() {
+            const path = window.location.pathname || '';
+            const assetsIndex = path.indexOf('/assets/');
+            if (assetsIndex >= 0) {
+                return path.slice(0, assetsIndex);
+            }
+            return '';
+        }
+
         async function loadPythonCode() {
+            const basePath = getBasePath();
+            const normalizedBase = basePath === '/' ? '' : basePath;
             const candidateUrls = [
+                `${normalizedBase}/py/grayscale.py`,
+                `${normalizedBase}/assets/py/grayscale.py`,
+                `${normalizedBase}/public/py/grayscale.py`,
+                '../../py/grayscale.py',
                 '../py/grayscale.py',
-                '/py/grayscale.py',
                 'py/grayscale.py',
+                '/py/grayscale.py',
             ];
             let code = null;
             let sourceUrl = null;
