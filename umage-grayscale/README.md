@@ -4,8 +4,6 @@ The project is built using **Expo** with **React Native** and **TypeScript**, ut
 
 Coding Time spent: **2** hours
 
-Design + Readme + Deploy Time spent: around one hour
-
 ## Technical Requirements
 
 ### 1. Pyodide Integration
